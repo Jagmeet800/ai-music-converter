@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Music Converter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      background-color: #f2f2f2;
+      text-align: center;
+    }
+    .container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      max-width: 400px;
+      margin: auto;
+    }
+    input, select, button {
+      margin: 10px;
+      padding: 10px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>AI Music Instrument Converter</h2>
+    <input type="file" id="songInput" accept="audio/mp3" />
+    <select id="instrumentSelect">
+      <option value="flute">Flute</option>
+      <option value="drums">Drums</option>
+      <option value="piano">Piano</option>
+      <option value="guitar">Guitar</option>
+    </select>
+    <button onclick="submitSong()">Convert</button>
+    <p id="status"></p>
+  </div>
+
+  <script>
+    function submitSong() {
+      const songFile = document.getElementById('songInput').files[0];
+      const instrument = document.getElementById('instrumentSelect').value;
+      
+      if (!songFile) {
+        alert('Please upload a song file.');
+        return;
+      }
+
+      document.getElementById('status').innerText = 'Uploading and converting...';
+
+      const formData = new FormData();
+      formData.append('song', songFile);
+      formData.append('instrument', instrument);
+
+      fetch('http://localhost:5000/convert', {
+        method: 'POST',
+        body: formData
+      })
+      .then(res => res.blob())
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'converted_song.mp3';
+        a.click();
+        document.getElementById('status').innerText = 'Conversion done!';
+      })
+      .catch(err => {
+        console.error(err);
+        document.getElementById('status').innerText = 'Something went wrong.';
+      });
+    }
+  </script>
+</body>
+</html>
